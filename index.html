@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social Media Analytics Dashboard</title>
+<style>
+  :root{
+    --navy:#1F2A44; --navy2:#2b3a5e; --slate:#5D6D7E; --page:#f4f6f9; --card:#ffffff;
+    --line:#e4e8ef; --txt:#1F2A44; --muted:#6b7790; --good:#0E6B2E; --goodbg:#e7f6ec;
+    --ig:#7F77DD; --ig2:#D4537E; --tt:#1D9E75; --yt:#E24B4A;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--page);color:var(--txt);}
+  header{background:var(--navy);color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+  header h1{font-size:19px;font-weight:600;margin:0;display:flex;align-items:center;gap:10px;}
+  header .sub{font-size:13px;color:#aeb8cc;}
+  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 60px;}
+  nav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
+  nav button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;}
+  nav button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px;}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
+  .card .label{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .card .val{font-size:26px;font-weight:600;margin-top:4px;}
+  .card .delta{font-size:12.5px;margin-top:4px;color:var(--muted);}
+  .card .delta.up{color:var(--good);}
+  .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;}
+  .chart{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px 18px;}
+  .chart h3{font-size:13px;font-weight:600;color:var(--slate);margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;}
+  .cbox{position:relative;height:230px;}
+  .platpill{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+  table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-bottom:22px;}
+  th,td{padding:7px 9px;font-size:13px;text-align:right;border-bottom:1px solid var(--line);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{background:var(--navy);color:#fff;font-weight:500;position:sticky;top:0;}
+  tbody tr:nth-child(even){background:#fafbfd;}
+  td input{width:78px;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:13px;text-align:right;font-family:inherit;}
+  td input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px rgba(31,42,68,.12);}
+  td.calc{color:var(--slate);font-weight:500;}
+  .ptitle{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin:6px 0 8px;}
+  .hint{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.6;}
+  .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
+  .tools button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
+  .tools button:hover{background:#f0f2f6;}
+  .hidden{display:none;}
+  .badge{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--goodbg);color:var(--good);font-weight:500;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Social Media Analytics Dashboard</h1>
+  <div class="sub" id="yearsub"></div>
+</header>
+<div class="wrap">
+  <nav>
+    <button id="navDash" class="active" onclick="showView('dash')">Dashboard</button>
+    <button id="navData" onclick="showView('data')">Enter data</button>
+  </nav>
+
+  <!-- DASHBOARD VIEW -->
+  <section id="view-dash">
+    <div class="cards" id="cards"></div>
+    <div class="charts">
+      <div class="chart"><h3>Followers growth</h3><div class="cbox"><canvas id="cFol"></canvas></div></div>
+      <div class="chart"><h3>Engagement rate trend</h3><div class="cbox"><canvas id="cEr"></canvas></div></div>
+      <div class="chart"><h3>Views by month</h3><div class="cbox"><canvas id="cViews"></canvas></div></div>
+      <div class="chart"><h3>Posts published</h3><div class="cbox"><canvas id="cPosts"></canvas></div></div>
+      <div class="chart"><h3>Followers by platform</h3><div class="cbox"><canvas id="cPlat"></canvas></div></div>
+      <div class="chart"><h3>Engagement rate by platform</h3><div class="cbox"><canvas id="cPlatEr"></canvas></div></div>
+    </div>
+  </section>
+
+  <!-- DATA ENTRY VIEW -->
+  <section id="view-data" class="hidden">
+    <p class="hint">Type your monthly numbers below. Everything saves automatically in this browser and the
+      dashboard updates instantly. <b>Engagement rate</b> is calculated for you
+      (interactions ÷ reach × 100). Leave a month blank until you have its numbers.</p>
+    <div class="tools">
+      <button onclick="loadSample()">Load sample data</button>
+      <button onclick="clearAll()">Clear all data</button>
+    </div>
+    <div id="tables"></div>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* ---------------- CONFIG ---------------- */
+const YEAR = new Date().getFullYear();
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const ER_TARGET = 4;            // % engagement-rate target
+const FIELDS = [                // per-platform monthly inputs
+  {k:'followers', label:'Followers', roll:'snap'},
+  {k:'posts',     label:'Posts',     roll:'add'},
+  {k:'reach',     label:'Reach',     roll:'add'},
+  {k:'views',     label:'Views',     roll:'add'},
+  {k:'eng',       label:'Interactions', roll:'add'},   // likes + comments + shares + saves
+];
+const PLATFORMS = [
+  {key:'ig1', name:'Instagram — Brand 1', color:'#7F77DD'},
+  {key:'ig2', name:'Instagram — Brand 2', color:'#D4537E'},
+  {key:'tt',  name:'TikTok',              color:'#1D9E75'},
+  {key:'yt',  name:'YouTube',             color:'#E24B4A'},
+];
+const STORE_KEY = 'smd_dashboard_v1';
+
+/* ---------------- DATA MODEL ---------------- */
+// data[platformKey] = array(12) of {followers,posts,reach,views,eng} (values are number|'')
+let data = {};
+function blankMonth(){ return {followers:'',posts:'',reach:'',views:'',eng:''}; }
+function initData(){ PLATFORMS.forEach(p=>{ data[p.key]=Array.from({length:12},blankMonth); }); }
+function load(){
+  const raw = localStorage.getItem(STORE_KEY);
+  if(raw){ try{ data = JSON.parse(raw); }catch(e){ initData(); } }
+  else { initData(); seedSample(); }   // first run -> populate so it doesn't look empty
+}
+function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
+
+/* ---------------- SAMPLE DATA ---------------- */
+function seedSample(){
+  // 6 months of plausible agency numbers (Jan–Jun); later months left blank.
+  const S = {
+    ig1:{followers:[20000,21000,22000,22800,23500,24000],posts:[22,20,24,21,23,25],reach:[120000,130000,140000,150000,160000,168000],views:[90000,98000,110000,125000,135000,150000],eng:[4200,4600,5200,5400,5900,6300]},
+    ig2:{followers:[13000,13800,14500,15000,15600,16000],posts:[18,17,19,20,19,21],reach:[80000,86000,92000,98000,104000,110000],views:[60000,66000,74000,82000,90000,99000],eng:[2600,2900,3200,3500,3800,4100]},
+    tt: {followers:[9000,10200,11400,12500,13400,14300],posts:[26,28,30,27,31,33],reach:[150000,180000,210000,240000,270000,300000],views:[140000,170000,205000,245000,285000,330000],eng:[7000,8600,10300,12200,14000,16000]},
+    yt: {followers:[5000,5600,6200,6800,7400,8000],posts:[8,9,10,9,11,12],reach:[40000,46000,52000,58000,64000,70000],views:[30000,36000,42000,50000,58000,66000],eng:[900,1100,1300,1500,1700,1950]},
+  };
+  PLATFORMS.forEach(p=>{
+    data[p.key]=Array.from({length:12},blankMonth);
+    const s=S[p.key]; if(!s) return;
+    for(let m=0;m<6;m++){ FIELDS.forEach(f=>{ data[p.key][m][f.k]=s[f.k][m]; }); }
+  });
+}
+function loadSample(){ seedSample(); save(); renderTables(); renderDash(); showView('dash'); }
+function clearAll(){ if(!confirm('Clear all entered data?')) return; initData(); save(); renderTables(); renderDash(); }
+
+/* ---------------- ROLLUP HELPERS ---------------- */
+const num = v => (v===''||v===null||isNaN(v))?null:Number(v);
+// total of a field across platforms for a given month (null if nobody has data)
+function monthTotal(field, m){
+  let sum=0, any=false;
+  PLATFORMS.forEach(p=>{ const v=num(data[p.key][m][field]); if(v!==null){ sum+=v; any=true; } });
+  return any?sum:null;
+}
+// followers snapshot for a month = sum across platforms of that month's followers (last known if blank)
+function followersAt(m){
+  let sum=0, any=false;
+  PLATFORMS.forEach(p=>{
+    let v=null;
+    for(let i=m;i>=0;i--){ const x=num(data[p.key][i].followers); if(x!==null){ v=x; break; } }
+    if(v!==null){ sum+=v; any=true; }
+  });
+  return any?sum:null;
+}
+function lastPopulatedMonth(){
+  for(let m=11;m>=0;m--){
+    for(const p of PLATFORMS){ for(const f of FIELDS){ if(num(data[p.key][m][f.k])!==null) return m; } }
+  }
+  return -1;
+}
+function firstPopulatedMonth(){
+  for(let m=0;m<12;m++){
+    for(const p of PLATFORMS){ for(const f of FIELDS){ if(num(data[p.key][m][f.k])!==null) return m; } }
+  }
+  return -1;
+}
+// ER recomputed from totals (NOT averaged): interactions / reach * 100
+function erAt(m){ const e=monthTotal('eng',m), r=monthTotal('reach',m); return (r&&r>0)?(e/r*100):null; }
+function sumField(field){ let s=0; for(let m=0;m<12;m++){ const v=monthTotal(field,m); if(v!==null)s+=v; } return s; }
+function platERyear(pk){
+  let e=0,r=0;
+  for(let m=0;m<12;m++){ const ev=num(data[pk][m].eng), rv=num(data[pk][m].reach); if(ev!==null)e+=ev; if(rv!==null)r+=rv; }
+  return r>0?(e/r*100):0;
+}
+function platFollowers(pk){
+  for(let m=11;m>=0;m--){ const v=num(data[pk][m].followers); if(v!==null) return v; }
+  return 0;
+}
+
+/* ---------------- FORMAT ---------------- */
+const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+'M' : n>=1e4 ? Math.round(n/1000)+'k' : Math.round(n).toLocaleString();
+const fmtFull = n => Math.round(n).toLocaleString();
+
+/* ---------------- DASHBOARD CARDS ---------------- */
+function renderCards(){
+  const lastM=lastPopulatedMonth(), firstM=firstPopulatedMonth();
+  const totalFol = lastM>=0 ? (followersAt(lastM)||0) : 0;
+  const startFol = firstM>=0 ? (followersAt(firstM)||0) : 0;
+  const netGrowth = totalFol - startFol;
+  const totalReach=sumField('reach'), totalViews=sumField('views'), totalPosts=sumField('posts');
+  const totalEng=sumField('eng');
+  const avgEr = totalReach>0 ? (totalEng/totalReach*100) : 0;
+  // best platform by yearly ER
+  let best={name:'—',er:-1}; PLATFORMS.forEach(p=>{ const er=platERyear(p.key); if(er>best.er) best={name:p.name.split(' — ')[0]===p.name?p.name:p.name,er}; });
+  const bestShort = best.name.replace('Instagram — ','IG ');
+  const cards=[
+    {label:'Total followers', val:fmtFull(totalFol), delta:(netGrowth>=0?'+':'')+fmtFull(netGrowth)+' to date', up:netGrowth>0},
+    {label:'Avg engagement rate', val:avgEr.toFixed(1)+'%', delta:(avgEr>=ER_TARGET?'above':'below')+' '+ER_TARGET+'% target', up:avgEr>=ER_TARGET},
+    {label:'Total reach', val:fmt(totalReach), delta:'this period'},
+    {label:'Total views', val:fmt(totalViews), delta:'this period'},
+    {label:'Posts published', val:fmtFull(totalPosts), delta:'this period'},
+    {label:'Best platform', val:bestShort, delta:best.er>0?best.er.toFixed(1)+'% engagement':'—', up:best.er>=ER_TARGET},
+  ];
+  document.getElementById('cards').innerHTML = cards.map(c=>
+    `<div class="card"><div class="label">${c.label}</div><div class="val">${c.val}</div>
+     <div class="delta ${c.up?'up':''}">${c.delta}</div></div>`).join('');
+}
+
+/* ---------------- CHARTS ---------------- */
+let charts={};
+function gridColor(){ return '#e4e8ef'; }
+function baseOpts(pct){
+  return {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+    scales:{x:{grid:{display:false},ticks:{color:'#6b7790',font:{size:11}}},
+            y:{grid:{color:gridColor()},ticks:{color:'#6b7790',font:{size:11},
+               callback:v=>pct?v+'%':(v>=1000?fmt(v):v)}}}};
+}
+function activeMonths(){ const last=lastPopulatedMonth(); return last<0?6:last+1; }
+function mk(id,type,labels,datasets,pct){
+  if(charts[id]) charts[id].destroy();
+  charts[id]=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:baseOpts(pct)});
+}
+function renderCharts(){
+  const n=activeMonths(); const labels=MONTHS.slice(0,Math.max(n,1));
+  const folSeries=[],erSeries=[],viewSeries=[],postSeries=[];
+  for(let m=0;m<labels.length;m++){
+    folSeries.push(followersAt(m)); erSeries.push(erAt(m)?+erAt(m).toFixed(2):null);
+    viewSeries.push(monthTotal('views',m)); postSeries.push(monthTotal('posts',m));
+  }
+  mk('cFol','line',labels,[{data:folSeries,borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true}]);
+  mk('cEr','line',labels,[
+    {data:erSeries,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true},
+    {data:labels.map(()=>ER_TARGET),borderColor:'#9aa3b2',borderDash:[5,4],pointRadius:0,fill:false}
+  ],true);
+  mk('cViews','bar',labels,[{data:viewSeries,backgroundColor:'#BA7517',borderRadius:4}]);
+  mk('cPosts','bar',labels,[{data:postSeries,backgroundColor:'#185FA5',borderRadius:4}]);
+  mk('cPlat','bar',PLATFORMS.map(p=>p.name.replace('Instagram — ','IG ')),
+     [{data:PLATFORMS.map(p=>platFollowers(p.key)),backgroundColor:PLATFORMS.map(p=>p.color),borderRadius:4}]);
+  mk('cPlatEr','bar',PLATFORMS.map(p=>p.name.replace('Instagram — ','IG ')),
+     [{data:PLATFORMS.map(p=>+platERyear(p.key).toFixed(2)),backgroundColor:PLATFORMS.map(p=>p.color),borderRadius:4}],true);
+}
+function renderDash(){ renderCards(); renderCharts(); }
+
+/* ---------------- DATA ENTRY TABLES ---------------- */
+function renderTables(){
+  const host=document.getElementById('tables'); host.innerHTML='';
+  PLATFORMS.forEach(p=>{
+    let html=`<div class="ptitle"><span class="platpill" style="background:${p.color}"></span>${p.name}</div>`;
+    html+='<table><thead><tr><th>Month</th>'+FIELDS.map(f=>`<th>${f.label}</th>`).join('')+'<th>Eng. rate</th></tr></thead><tbody>';
+    for(let m=0;m<12;m++){
+      html+=`<tr><td>${MONTHS[m]}</td>`;
+      FIELDS.forEach(f=>{
+        const v=data[p.key][m][f.k];
+        html+=`<td><input type="number" min="0" value="${v===''?'':v}" data-p="${p.key}" data-m="${m}" data-f="${f.k}" oninput="onEdit(this)"></td>`;
+      });
+      const e=num(data[p.key][m].eng), r=num(data[p.key][m].reach);
+      const er=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
+      html+=`<td class="calc" id="er-${p.key}-${m}">${er}</td></tr>`;
+    }
+    html+='</tbody></table>';
+    host.insertAdjacentHTML('beforeend',html);
+  });
+}
+function onEdit(el){
+  const p=el.dataset.p,m=+el.dataset.m,f=el.dataset.f;
+  data[p][m][f]= el.value===''?'':Number(el.value);
+  // live per-row ER
+  const e=num(data[p][m].eng), r=num(data[p][m].reach);
+  document.getElementById(`er-${p}-${m}`).textContent=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
+  save(); renderDash();
+}
+
+/* ---------------- VIEW SWITCH ---------------- */
+function showView(v){
+  document.getElementById('view-dash').classList.toggle('hidden',v!=='dash');
+  document.getElementById('view-data').classList.toggle('hidden',v!=='data');
+  document.getElementById('navDash').classList.toggle('active',v==='dash');
+  document.getElementById('navData').classList.toggle('active',v==='data');
+  if(v==='dash') renderDash();
+}
+
+/* ---------------- INIT ---------------- */
+document.getElementById('yearsub').textContent = YEAR+' performance · saved in this browser';
+load(); renderTables(); renderDash();
+</script>
+</body>
+</html>
