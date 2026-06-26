@@ -3,62 +3,67 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Social Media Analytics Dashboard</title>
+<title>Dose Analytics Dashboard</title>
 <style>
   :root{
-    --navy:#1F2A44; --navy2:#2b3a5e; --slate:#5D6D7E; --page:#f4f6f9; --card:#ffffff;
-    --line:#e4e8ef; --txt:#1F2A44; --muted:#6b7790; --good:#0E6B2E; --goodbg:#e7f6ec;
-    --ig:#7F77DD; --ig2:#D4537E; --tt:#1D9E75; --yt:#E24B4A;
+    --navy:#1F2A44; --slate:#5D6D7E; --page:#f4f6f9; --card:#fff; --line:#e4e8ef;
+    --txt:#1F2A44; --muted:#6b7790; --good:#0E6B2E; --goodbg:#e7f6ec;
   }
   *{box-sizing:border-box}
   body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:var(--page);color:var(--txt);}
   header{background:var(--navy);color:#fff;padding:18px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-  header h1{font-size:19px;font-weight:600;margin:0;display:flex;align-items:center;gap:10px;}
+  header h1{font-size:19px;font-weight:600;margin:0;}
   header .sub{font-size:13px;color:#aeb8cc;}
-  .wrap{max-width:1180px;margin:0 auto;padding:22px 28px 60px;}
+  .wrap{max-width:1200px;margin:0 auto;padding:22px 28px 60px;}
   nav{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;}
   nav button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;}
   nav button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
-  .card .label{font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
-  .card .val{font-size:26px;font-weight:600;margin-top:4px;}
+  .card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;}
+  .card .val{font-size:25px;font-weight:600;margin-top:4px;}
   .card .delta{font-size:12.5px;margin-top:4px;color:var(--muted);}
   .card .delta.up{color:var(--good);}
   .charts{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px;}
   .chart{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 18px 18px;}
   .chart h3{font-size:13px;font-weight:600;color:var(--slate);margin:0 0 10px;text-transform:uppercase;letter-spacing:.04em;}
   .cbox{position:relative;height:230px;}
-  .platpill{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
-  table{border-collapse:collapse;width:100%;background:#fff;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-bottom:22px;}
-  th,td{padding:7px 9px;font-size:13px;text-align:right;border-bottom:1px solid var(--line);}
+  .pill{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+  table{border-collapse:collapse;width:100%;background:#fff;border-radius:10px;overflow:hidden;border:1px solid var(--line);margin-bottom:22px;font-variant-numeric:tabular-nums;}
+  th,td{padding:7px 9px;font-size:13px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;}
   th:first-child,td:first-child{text-align:left;}
-  thead th{background:var(--navy);color:#fff;font-weight:500;position:sticky;top:0;}
+  thead th{background:var(--navy);color:#fff;font-weight:500;}
   tbody tr:nth-child(even){background:#fafbfd;}
-  td input{width:78px;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:13px;text-align:right;font-family:inherit;}
+  tr.brandrow td{background:#eef1f6;font-weight:600;}
+  tr.totalrow td{background:#1F2A44;color:#fff;font-weight:600;}
+  td input{width:74px;border:1px solid var(--line);border-radius:6px;padding:5px 7px;font-size:13px;text-align:right;font-family:inherit;}
   td input:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px rgba(31,42,68,.12);}
   td.calc{color:var(--slate);font-weight:500;}
-  .ptitle{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;margin:6px 0 8px;}
+  .ptitle{display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:600;margin:14px 0 8px;}
+  .brandhdr{font-size:17px;font-weight:600;margin:20px 0 4px;padding-bottom:6px;border-bottom:2px solid var(--navy);}
   .hint{font-size:13px;color:var(--muted);margin:0 0 16px;line-height:1.6;}
   .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;}
   .tools button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
   .tools button:hover{background:#f0f2f6;}
+  .tools button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
   .hidden{display:none;}
-  .badge{font-size:12px;padding:3px 9px;border-radius:20px;background:var(--goodbg);color:var(--good);font-weight:500;}
+  .scroll{overflow-x:auto;}
+  .note{background:#fff7e6;border:1px solid #f0d48a;color:#7a5c00;font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:16px;line-height:1.5;}
 </style>
 </head>
 <body>
 <header>
-  <h1>Social Media Analytics Dashboard</h1>
+  <h1>Dose Analytics Dashboard</h1>
   <div class="sub" id="yearsub"></div>
 </header>
 <div class="wrap">
   <nav>
     <button id="navDash" class="active" onclick="showView('dash')">Dashboard</button>
+    <button id="navSheet" onclick="showView('sheet')">Spreadsheet</button>
     <button id="navData" onclick="showView('data')">Enter data</button>
   </nav>
 
-  <!-- DASHBOARD VIEW -->
+  <!-- DASHBOARD -->
   <section id="view-dash">
     <div class="cards" id="cards"></div>
     <div class="charts">
@@ -66,16 +71,27 @@
       <div class="chart"><h3>Engagement rate trend</h3><div class="cbox"><canvas id="cEr"></canvas></div></div>
       <div class="chart"><h3>Views by month</h3><div class="cbox"><canvas id="cViews"></canvas></div></div>
       <div class="chart"><h3>Posts published</h3><div class="cbox"><canvas id="cPosts"></canvas></div></div>
+      <div class="chart"><h3>Followers by brand</h3><div class="cbox"><canvas id="cBrand"></canvas></div></div>
       <div class="chart"><h3>Followers by platform</h3><div class="cbox"><canvas id="cPlat"></canvas></div></div>
-      <div class="chart"><h3>Engagement rate by platform</h3><div class="cbox"><canvas id="cPlatEr"></canvas></div></div>
     </div>
   </section>
 
-  <!-- DATA ENTRY VIEW -->
+  <!-- SPREADSHEET -->
+  <section id="view-sheet" class="hidden">
+    <div class="tools">
+      <button class="primary" onclick="downloadCSV()">⬇ Download spreadsheet (CSV)</button>
+      <span style="font-size:13px;color:var(--muted);align-self:center;">Opens in Excel or Google Sheets · full month-by-month detail</span>
+    </div>
+    <div class="scroll" id="sheetHost"></div>
+  </section>
+
+  <!-- DATA ENTRY -->
   <section id="view-data" class="hidden">
-    <p class="hint">Type your monthly numbers below. Everything saves automatically in this browser and the
-      dashboard updates instantly. <b>Engagement rate</b> is calculated for you
-      (interactions ÷ reach × 100). Leave a month blank until you have its numbers.</p>
+    <div class="note"><b>Heads up:</b> these numbers are entered by hand for now. Automatic pulling from
+      Instagram / Facebook / TikTok / YouTube is possible but needs a separate setup — ask in chat.</div>
+    <p class="hint">Type your monthly numbers per account. Everything saves automatically in this browser and
+      the dashboard + spreadsheet update instantly. <b>Engagement rate</b> is calculated for you
+      (interactions ÷ reach × 100).</p>
     <div class="tools">
       <button onclick="loadSample()">Load sample data</button>
       <button onclick="clearAll()">Clear all data</button>
@@ -89,200 +105,211 @@
 /* ---------------- CONFIG ---------------- */
 const YEAR = new Date().getFullYear();
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const ER_TARGET = 4;            // % engagement-rate target
-const FIELDS = [                // per-platform monthly inputs
+const ER_TARGET = 4;
+const FIELDS = [
   {k:'followers', label:'Followers', roll:'snap'},
   {k:'posts',     label:'Posts',     roll:'add'},
   {k:'reach',     label:'Reach',     roll:'add'},
   {k:'views',     label:'Views',     roll:'add'},
-  {k:'eng',       label:'Interactions', roll:'add'},   // likes + comments + shares + saves
+  {k:'eng',       label:'Interactions', roll:'add'},
+];
+const BRANDS = [
+  {key:'doh', name:'Dose of Hope'},
+  {key:'dm',  name:'Dose Moving'},
 ];
 const PLATFORMS = [
-  {key:'ig1', name:'Instagram — Brand 1', color:'#7F77DD'},
-  {key:'ig2', name:'Instagram — Brand 2', color:'#D4537E'},
-  {key:'tt',  name:'TikTok',              color:'#1D9E75'},
-  {key:'yt',  name:'YouTube',             color:'#E24B4A'},
+  {key:'ig',  name:'Instagram',      color:'#7F77DD'},
+  {key:'fb',  name:'Facebook',       color:'#185FA5'},
+  {key:'tt',  name:'TikTok',         color:'#17A2B8'},
+  {key:'yt',  name:'YouTube',        color:'#E24B4A'},
+  {key:'yts', name:'YouTube Shorts', color:'#BA7517'},
 ];
-const STORE_KEY = 'smd_dashboard_v1';
+const BRAND_COLORS = {doh:'#534AB7', dm:'#0F6E56'};
+const STORE_KEY = 'dose_dashboard_v2';
+
+/* feeds = every brand × platform */
+const FEEDS = [];
+BRANDS.forEach(b=>PLATFORMS.forEach(p=>FEEDS.push({key:b.key+'_'+p.key, brandKey:b.key, platKey:p.key,
+  brand:b.name, plat:p.name, color:p.color, name:b.name+' · '+p.name})));
 
 /* ---------------- DATA MODEL ---------------- */
-// data[platformKey] = array(12) of {followers,posts,reach,views,eng} (values are number|'')
 let data = {};
-function blankMonth(){ return {followers:'',posts:'',reach:'',views:'',eng:''}; }
-function initData(){ PLATFORMS.forEach(p=>{ data[p.key]=Array.from({length:12},blankMonth); }); }
+const blankMonth = ()=>({followers:'',posts:'',reach:'',views:'',eng:''});
+function initData(){ FEEDS.forEach(f=>{ data[f.key]=Array.from({length:12},blankMonth); }); }
 function load(){
-  const raw = localStorage.getItem(STORE_KEY);
-  if(raw){ try{ data = JSON.parse(raw); }catch(e){ initData(); } }
-  else { initData(); seedSample(); }   // first run -> populate so it doesn't look empty
+  const raw=localStorage.getItem(STORE_KEY);
+  if(raw){ try{ data=JSON.parse(raw); }catch(e){ initData(); } }
+  else { initData(); seedSample(); }
+  FEEDS.forEach(f=>{ if(!data[f.key]) data[f.key]=Array.from({length:12},blankMonth); });
 }
 function save(){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
 
-/* ---------------- SAMPLE DATA ---------------- */
+/* ---------------- SAMPLE DATA (6 months, generated) ---------------- */
 function seedSample(){
-  // 6 months of plausible agency numbers (Jan–Jun); later months left blank.
-  const S = {
-    ig1:{followers:[20000,21000,22000,22800,23500,24000],posts:[22,20,24,21,23,25],reach:[120000,130000,140000,150000,160000,168000],views:[90000,98000,110000,125000,135000,150000],eng:[4200,4600,5200,5400,5900,6300]},
-    ig2:{followers:[13000,13800,14500,15000,15600,16000],posts:[18,17,19,20,19,21],reach:[80000,86000,92000,98000,104000,110000],views:[60000,66000,74000,82000,90000,99000],eng:[2600,2900,3200,3500,3800,4100]},
-    tt: {followers:[9000,10200,11400,12500,13400,14300],posts:[26,28,30,27,31,33],reach:[150000,180000,210000,240000,270000,300000],views:[140000,170000,205000,245000,285000,330000],eng:[7000,8600,10300,12200,14000,16000]},
-    yt: {followers:[5000,5600,6200,6800,7400,8000],posts:[8,9,10,9,11,12],reach:[40000,46000,52000,58000,64000,70000],views:[30000,36000,42000,50000,58000,66000],eng:[900,1100,1300,1500,1700,1950]},
-  };
-  PLATFORMS.forEach(p=>{
-    data[p.key]=Array.from({length:12},blankMonth);
-    const s=S[p.key]; if(!s) return;
-    for(let m=0;m<6;m++){ FIELDS.forEach(f=>{ data[p.key][m][f.k]=s[f.k][m]; }); }
+  const platBase={ig:18000,fb:12000,tt:15000,yt:9000,yts:9000};
+  const brandMult={doh:1.0,dm:0.72};
+  const postsBase={ig:22,fb:16,tt:30,yt:6,yts:18};
+  const reachF   ={ig:7,fb:6,tt:14,yt:0,yts:0};      // reach ≈ followers × factor
+  const impForYT ={yt:55000,yts:120000};             // YT/Shorts use impression-style reach
+  const viewF    ={ig:0.8,fb:0.5,tt:1.1,yt:0,yts:0};
+  const erPct    ={ig:4.2,fb:2.6,tt:6.0,yt:3.0,yts:2.4};
+  FEEDS.forEach(f=>{
+    data[f.key]=Array.from({length:12},blankMonth);
+    const baseF=Math.round(platBase[f.platKey]*brandMult[f.brandKey]);
+    for(let m=0;m<6;m++){
+      const grow=1+0.045*m;
+      const followers=Math.round(baseF*grow);
+      const posts=Math.round(postsBase[f.platKey]*(0.9+0.05*m));
+      let reach;
+      if(f.platKey==='yt'||f.platKey==='yts') reach=Math.round(impForYT[f.platKey]*brandMult[f.brandKey]*grow);
+      else reach=Math.round(followers*reachF[f.platKey]);
+      let views;
+      if(f.platKey==='yt') views=Math.round(reach*0.45);
+      else if(f.platKey==='yts') views=Math.round(reach*0.9);
+      else views=Math.round(reach*viewF[f.platKey]);
+      const eng=Math.round(reach*erPct[f.platKey]/100);
+      data[f.key][m]={followers,posts,reach,views,eng};
+    }
   });
 }
-function loadSample(){ seedSample(); save(); renderTables(); renderDash(); showView('dash'); }
-function clearAll(){ if(!confirm('Clear all entered data?')) return; initData(); save(); renderTables(); renderDash(); }
+function loadSample(){ seedSample(); save(); renderAll(); showView('dash'); }
+function clearAll(){ if(!confirm('Clear all entered data?')) return; initData(); save(); renderAll(); }
 
 /* ---------------- ROLLUP HELPERS ---------------- */
-const num = v => (v===''||v===null||isNaN(v))?null:Number(v);
-// total of a field across platforms for a given month (null if nobody has data)
-function monthTotal(field, m){
-  let sum=0, any=false;
-  PLATFORMS.forEach(p=>{ const v=num(data[p.key][m][field]); if(v!==null){ sum+=v; any=true; } });
-  return any?sum:null;
-}
-// followers snapshot for a month = sum across platforms of that month's followers (last known if blank)
-function followersAt(m){
-  let sum=0, any=false;
-  PLATFORMS.forEach(p=>{
-    let v=null;
-    for(let i=m;i>=0;i--){ const x=num(data[p.key][i].followers); if(x!==null){ v=x; break; } }
-    if(v!==null){ sum+=v; any=true; }
-  });
-  return any?sum:null;
-}
-function lastPopulatedMonth(){
-  for(let m=11;m>=0;m--){
-    for(const p of PLATFORMS){ for(const f of FIELDS){ if(num(data[p.key][m][f.k])!==null) return m; } }
-  }
-  return -1;
-}
-function firstPopulatedMonth(){
-  for(let m=0;m<12;m++){
-    for(const p of PLATFORMS){ for(const f of FIELDS){ if(num(data[p.key][m][f.k])!==null) return m; } }
-  }
-  return -1;
-}
-// ER recomputed from totals (NOT averaged): interactions / reach * 100
-function erAt(m){ const e=monthTotal('eng',m), r=monthTotal('reach',m); return (r&&r>0)?(e/r*100):null; }
-function sumField(field){ let s=0; for(let m=0;m<12;m++){ const v=monthTotal(field,m); if(v!==null)s+=v; } return s; }
-function platERyear(pk){
-  let e=0,r=0;
-  for(let m=0;m<12;m++){ const ev=num(data[pk][m].eng), rv=num(data[pk][m].reach); if(ev!==null)e+=ev; if(rv!==null)r+=rv; }
-  return r>0?(e/r*100):0;
-}
-function platFollowers(pk){
-  for(let m=11;m>=0;m--){ const v=num(data[pk][m].followers); if(v!==null) return v; }
-  return 0;
-}
+const num=v=>(v===''||v===null||isNaN(v))?null:Number(v);
+function feedLastFollowers(fk,uptoM){ for(let i=uptoM;i>=0;i--){ const v=num(data[fk][i].followers); if(v!==null) return v; } return null; }
+function followersAt(m){ let s=0,any=false; FEEDS.forEach(f=>{ const v=feedLastFollowers(f.key,m); if(v!==null){s+=v;any=true;} }); return any?s:null; }
+function monthTotal(field,m,filter){ let s=0,any=false; FEEDS.forEach(f=>{ if(filter&&!filter(f))return; const v=num(data[f.key][m][field]); if(v!==null){s+=v;any=true;} }); return any?s:null; }
+function erAt(m){ const e=monthTotal('eng',m),r=monthTotal('reach',m); return (r&&r>0)?(e/r*100):null; }
+function lastPopulatedMonth(){ for(let m=11;m>=0;m--){ for(const f of FEEDS){ for(const fl of FIELDS){ if(num(data[f.key][m][fl.k])!==null) return m; } } } return -1; }
+function firstPopulatedMonth(){ for(let m=0;m<12;m++){ for(const f of FEEDS){ for(const fl of FIELDS){ if(num(data[f.key][m][fl.k])!==null) return m; } } } return -1; }
+function sumField(field,filter){ let s=0; for(let m=0;m<12;m++){ const v=monthTotal(field,m,filter); if(v!==null)s+=v; } return s; }
+function feedSum(fk,field){ let s=0,any=false; for(let m=0;m<12;m++){ const v=num(data[fk][m][field]); if(v!==null){s+=v;any=true;} } return any?s:0; }
+function feedLatest(fk,field){ for(let m=11;m>=0;m--){ const v=num(data[fk][m][field]); if(v!==null) return v; } return 0; }
+function feedER(fk){ let e=0,r=0; for(let m=0;m<12;m++){ const ev=num(data[fk][m].eng),rv=num(data[fk][m].reach); if(ev!==null)e+=ev; if(rv!==null)r+=rv; } return r>0?(e/r*100):0; }
 
 /* ---------------- FORMAT ---------------- */
-const fmt = n => n>=1e6 ? (n/1e6).toFixed(2)+'M' : n>=1e4 ? Math.round(n/1000)+'k' : Math.round(n).toLocaleString();
-const fmtFull = n => Math.round(n).toLocaleString();
+const fmt=n=>n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e4?Math.round(n/1000)+'k':Math.round(n).toLocaleString();
+const full=n=>Math.round(n).toLocaleString();
 
-/* ---------------- DASHBOARD CARDS ---------------- */
+/* ---------------- CARDS ---------------- */
 function renderCards(){
-  const lastM=lastPopulatedMonth(), firstM=firstPopulatedMonth();
-  const totalFol = lastM>=0 ? (followersAt(lastM)||0) : 0;
-  const startFol = firstM>=0 ? (followersAt(firstM)||0) : 0;
-  const netGrowth = totalFol - startFol;
-  const totalReach=sumField('reach'), totalViews=sumField('views'), totalPosts=sumField('posts');
-  const totalEng=sumField('eng');
-  const avgEr = totalReach>0 ? (totalEng/totalReach*100) : 0;
-  // best platform by yearly ER
-  let best={name:'—',er:-1}; PLATFORMS.forEach(p=>{ const er=platERyear(p.key); if(er>best.er) best={name:p.name.split(' — ')[0]===p.name?p.name:p.name,er}; });
-  const bestShort = best.name.replace('Instagram — ','IG ');
+  const lastM=lastPopulatedMonth(),firstM=firstPopulatedMonth();
+  const totalFol=lastM>=0?(followersAt(lastM)||0):0;
+  const startFol=firstM>=0?(followersAt(firstM)||0):0;
+  const net=totalFol-startFol;
+  const reach=sumField('reach'),views=sumField('views'),posts=sumField('posts'),eng=sumField('eng');
+  const avgEr=reach>0?(eng/reach*100):0;
+  let best={name:'—',er:-1}; PLATFORMS.forEach(p=>{ let e=0,r=0; FEEDS.filter(f=>f.platKey===p.key).forEach(f=>{e+=feedSum(f.key,'eng');r+=feedSum(f.key,'reach');}); const er=r>0?e/r*100:0; if(er>best.er)best={name:p.name,er}; });
   const cards=[
-    {label:'Total followers', val:fmtFull(totalFol), delta:(netGrowth>=0?'+':'')+fmtFull(netGrowth)+' to date', up:netGrowth>0},
-    {label:'Avg engagement rate', val:avgEr.toFixed(1)+'%', delta:(avgEr>=ER_TARGET?'above':'below')+' '+ER_TARGET+'% target', up:avgEr>=ER_TARGET},
-    {label:'Total reach', val:fmt(totalReach), delta:'this period'},
-    {label:'Total views', val:fmt(totalViews), delta:'this period'},
-    {label:'Posts published', val:fmtFull(totalPosts), delta:'this period'},
-    {label:'Best platform', val:bestShort, delta:best.er>0?best.er.toFixed(1)+'% engagement':'—', up:best.er>=ER_TARGET},
+    {label:'Total followers',val:full(totalFol),delta:(net>=0?'+':'')+full(net)+' to date',up:net>0},
+    {label:'Avg engagement rate',val:avgEr.toFixed(1)+'%',delta:(avgEr>=ER_TARGET?'above':'below')+' '+ER_TARGET+'% target',up:avgEr>=ER_TARGET},
+    {label:'Total reach',val:fmt(reach),delta:'this period'},
+    {label:'Total views',val:fmt(views),delta:'this period'},
+    {label:'Posts published',val:full(posts),delta:'this period'},
+    {label:'Top platform',val:best.name,delta:best.er>0?best.er.toFixed(1)+'% engagement':'—',up:best.er>=ER_TARGET},
   ];
-  document.getElementById('cards').innerHTML = cards.map(c=>
-    `<div class="card"><div class="label">${c.label}</div><div class="val">${c.val}</div>
-     <div class="delta ${c.up?'up':''}">${c.delta}</div></div>`).join('');
+  document.getElementById('cards').innerHTML=cards.map(c=>
+    `<div class="card"><div class="label">${c.label}</div><div class="val">${c.val}</div><div class="delta ${c.up?'up':''}">${c.delta}</div></div>`).join('');
 }
 
 /* ---------------- CHARTS ---------------- */
 let charts={};
-function gridColor(){ return '#e4e8ef'; }
-function baseOpts(pct){
-  return {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-    scales:{x:{grid:{display:false},ticks:{color:'#6b7790',font:{size:11}}},
-            y:{grid:{color:gridColor()},ticks:{color:'#6b7790',font:{size:11},
-               callback:v=>pct?v+'%':(v>=1000?fmt(v):v)}}}};
-}
-function activeMonths(){ const last=lastPopulatedMonth(); return last<0?6:last+1; }
-function mk(id,type,labels,datasets,pct){
-  if(charts[id]) charts[id].destroy();
-  charts[id]=new Chart(document.getElementById(id),{type,data:{labels,datasets},options:baseOpts(pct)});
-}
+function baseOpts(pct){ return {responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+  scales:{x:{grid:{display:false},ticks:{color:'#6b7790',font:{size:11}}},
+          y:{grid:{color:'#e4e8ef'},ticks:{color:'#6b7790',font:{size:11},callback:v=>pct?v+'%':(v>=1000?fmt(v):v)}}}}; }
+function mk(id,type,labels,ds,pct){ if(charts[id])charts[id].destroy(); charts[id]=new Chart(document.getElementById(id),{type,data:{labels,datasets:ds},options:baseOpts(pct)}); }
+function activeMonths(){ const l=lastPopulatedMonth(); return l<0?6:l+1; }
 function renderCharts(){
   const n=activeMonths(); const labels=MONTHS.slice(0,Math.max(n,1));
-  const folSeries=[],erSeries=[],viewSeries=[],postSeries=[];
-  for(let m=0;m<labels.length;m++){
-    folSeries.push(followersAt(m)); erSeries.push(erAt(m)?+erAt(m).toFixed(2):null);
-    viewSeries.push(monthTotal('views',m)); postSeries.push(monthTotal('posts',m));
-  }
-  mk('cFol','line',labels,[{data:folSeries,borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true}]);
+  const fol=[],er=[],views=[],posts=[];
+  for(let m=0;m<labels.length;m++){ fol.push(followersAt(m)); const e=erAt(m); er.push(e?+e.toFixed(2):null); views.push(monthTotal('views',m)); posts.push(monthTotal('posts',m)); }
+  mk('cFol','line',labels,[{data:fol,borderColor:'#534AB7',backgroundColor:'rgba(83,74,183,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true}]);
   mk('cEr','line',labels,[
-    {data:erSeries,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true},
-    {data:labels.map(()=>ER_TARGET),borderColor:'#9aa3b2',borderDash:[5,4],pointRadius:0,fill:false}
-  ],true);
-  mk('cViews','bar',labels,[{data:viewSeries,backgroundColor:'#BA7517',borderRadius:4}]);
-  mk('cPosts','bar',labels,[{data:postSeries,backgroundColor:'#185FA5',borderRadius:4}]);
-  mk('cPlat','bar',PLATFORMS.map(p=>p.name.replace('Instagram — ','IG ')),
-     [{data:PLATFORMS.map(p=>platFollowers(p.key)),backgroundColor:PLATFORMS.map(p=>p.color),borderRadius:4}]);
-  mk('cPlatEr','bar',PLATFORMS.map(p=>p.name.replace('Instagram — ','IG ')),
-     [{data:PLATFORMS.map(p=>+platERyear(p.key).toFixed(2)),backgroundColor:PLATFORMS.map(p=>p.color),borderRadius:4}],true);
+    {data:er,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,.12)',fill:true,tension:.35,pointRadius:3,spanGaps:true},
+    {data:labels.map(()=>ER_TARGET),borderColor:'#9aa3b2',borderDash:[5,4],pointRadius:0,fill:false}],true);
+  mk('cViews','bar',labels,[{data:views,backgroundColor:'#BA7517',borderRadius:4}]);
+  mk('cPosts','bar',labels,[{data:posts,backgroundColor:'#185FA5',borderRadius:4}]);
+  mk('cBrand','bar',BRANDS.map(b=>b.name),[{data:BRANDS.map(b=>{ let s=0; FEEDS.filter(f=>f.brandKey===b.key).forEach(f=>s+=feedLatest(f.key,'followers')); return s; }),backgroundColor:BRANDS.map(b=>BRAND_COLORS[b.key]),borderRadius:4}]);
+  mk('cPlat','bar',PLATFORMS.map(p=>p.name),[{data:PLATFORMS.map(p=>{ let s=0; FEEDS.filter(f=>f.platKey===p.key).forEach(f=>s+=feedLatest(f.key,'followers')); return s; }),backgroundColor:PLATFORMS.map(p=>p.color),borderRadius:4}]);
 }
-function renderDash(){ renderCards(); renderCharts(); }
 
-/* ---------------- DATA ENTRY TABLES ---------------- */
+/* ---------------- SPREADSHEET VIEW ---------------- */
+function renderSheet(){
+  const cols=['Followers (latest)','Posts','Reach','Views','Interactions','Eng. rate'];
+  let html='<table><thead><tr><th>Account</th>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+  let gT={posts:0,reach:0,views:0,eng:0,fol:0};
+  BRANDS.forEach(b=>{
+    html+=`<tr class="brandrow"><td>${b.name}</td><td colspan="${cols.length}"></td></tr>`;
+    let bT={fol:0,posts:0,reach:0,views:0,eng:0};
+    FEEDS.filter(f=>f.brandKey===b.key).forEach(f=>{
+      const fol=feedLatest(f.key,'followers'),posts=feedSum(f.key,'posts'),reach=feedSum(f.key,'reach'),
+            views=feedSum(f.key,'views'),eng=feedSum(f.key,'eng'),er=feedER(f.key);
+      bT.fol+=fol;bT.posts+=posts;bT.reach+=reach;bT.views+=views;bT.eng+=eng;
+      html+=`<tr><td><span class="pill" style="background:${f.color}"></span>${f.plat}</td>`+
+        `<td>${full(fol)}</td><td>${full(posts)}</td><td>${full(reach)}</td><td>${full(views)}</td><td>${full(eng)}</td>`+
+        `<td class="calc">${er?er.toFixed(1)+'%':'—'}</td></tr>`;
+    });
+    const ber=bT.reach>0?(bT.eng/bT.reach*100):0;
+    html+=`<tr><td style="font-weight:600">${b.name} total</td><td>${full(bT.fol)}</td><td>${full(bT.posts)}</td><td>${full(bT.reach)}</td><td>${full(bT.views)}</td><td>${full(bT.eng)}</td><td class="calc">${ber?ber.toFixed(1)+'%':'—'}</td></tr>`;
+    gT.fol+=bT.fol;gT.posts+=bT.posts;gT.reach+=bT.reach;gT.views+=bT.views;gT.eng+=bT.eng;
+  });
+  const ger=gT.reach>0?(gT.eng/gT.reach*100):0;
+  html+=`<tr class="totalrow"><td>All accounts</td><td>${full(gT.fol)}</td><td>${full(gT.posts)}</td><td>${full(gT.reach)}</td><td>${full(gT.views)}</td><td>${full(gT.eng)}</td><td>${ger?ger.toFixed(1)+'%':'—'}</td></tr>`;
+  html+='</tbody></table>';
+  document.getElementById('sheetHost').innerHTML=html;
+}
+function downloadCSV(){
+  const rows=[['Brand','Platform','Month','Followers','Posts','Reach','Views','Interactions','Engagement %']];
+  FEEDS.forEach(f=>{ for(let m=0;m<12;m++){ const d=data[f.key][m]; const has=FIELDS.some(fl=>num(d[fl.k])!==null); if(!has)continue;
+    const r=num(d.reach),e=num(d.eng); const er=(r&&r>0)?(e/r*100).toFixed(1):'';
+    rows.push([f.brand,f.plat,MONTHS[m],d.followers,d.posts,d.reach,d.views,d.eng,er]); } });
+  const csv=rows.map(r=>r.map(x=>`"${x===''||x==null?'':x}"`).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='dose-analytics-'+YEAR+'.csv'; a.click(); URL.revokeObjectURL(url);
+}
+
+/* ---------------- DATA ENTRY ---------------- */
 function renderTables(){
   const host=document.getElementById('tables'); host.innerHTML='';
-  PLATFORMS.forEach(p=>{
-    let html=`<div class="ptitle"><span class="platpill" style="background:${p.color}"></span>${p.name}</div>`;
-    html+='<table><thead><tr><th>Month</th>'+FIELDS.map(f=>`<th>${f.label}</th>`).join('')+'<th>Eng. rate</th></tr></thead><tbody>';
-    for(let m=0;m<12;m++){
-      html+=`<tr><td>${MONTHS[m]}</td>`;
-      FIELDS.forEach(f=>{
-        const v=data[p.key][m][f.k];
-        html+=`<td><input type="number" min="0" value="${v===''?'':v}" data-p="${p.key}" data-m="${m}" data-f="${f.k}" oninput="onEdit(this)"></td>`;
-      });
-      const e=num(data[p.key][m].eng), r=num(data[p.key][m].reach);
-      const er=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
-      html+=`<td class="calc" id="er-${p.key}-${m}">${er}</td></tr>`;
-    }
-    html+='</tbody></table>';
-    host.insertAdjacentHTML('beforeend',html);
+  BRANDS.forEach(b=>{
+    host.insertAdjacentHTML('beforeend',`<div class="brandhdr">${b.name}</div>`);
+    FEEDS.filter(f=>f.brandKey===b.key).forEach(f=>{
+      let h=`<div class="ptitle"><span class="pill" style="background:${f.color}"></span>${f.plat}</div><div class="scroll"><table><thead><tr><th>Month</th>`+
+        FIELDS.map(fl=>`<th>${fl.label}</th>`).join('')+'<th>Eng. rate</th></tr></thead><tbody>';
+      for(let m=0;m<12;m++){
+        h+=`<tr><td>${MONTHS[m]}</td>`;
+        FIELDS.forEach(fl=>{ const v=data[f.key][m][fl.k]; h+=`<td><input type="number" min="0" value="${v===''?'':v}" data-fk="${f.key}" data-m="${m}" data-f="${fl.k}" oninput="onEdit(this)"></td>`; });
+        const e=num(data[f.key][m].eng),r=num(data[f.key][m].reach); const er=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
+        h+=`<td class="calc" id="er-${f.key}-${m}">${er}</td></tr>`;
+      }
+      h+='</tbody></table></div>';
+      host.insertAdjacentHTML('beforeend',h);
+    });
   });
 }
 function onEdit(el){
-  const p=el.dataset.p,m=+el.dataset.m,f=el.dataset.f;
-  data[p][m][f]= el.value===''?'':Number(el.value);
-  // live per-row ER
-  const e=num(data[p][m].eng), r=num(data[p][m].reach);
-  document.getElementById(`er-${p}-${m}`).textContent=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
-  save(); renderDash();
+  const fk=el.dataset.fk,m=+el.dataset.m,f=el.dataset.f;
+  data[fk][m][f]= el.value===''?'':Number(el.value);
+  const e=num(data[fk][m].eng),r=num(data[fk][m].reach);
+  document.getElementById(`er-${fk}-${m}`).textContent=(r&&r>0)?(e/r*100).toFixed(1)+'%':'';
+  save(); renderCards(); renderCharts(); renderSheet();
 }
 
 /* ---------------- VIEW SWITCH ---------------- */
+function renderAll(){ renderCards(); renderCharts(); renderSheet(); renderTables(); }
 function showView(v){
-  document.getElementById('view-dash').classList.toggle('hidden',v!=='dash');
-  document.getElementById('view-data').classList.toggle('hidden',v!=='data');
+  ['dash','sheet','data'].forEach(x=>document.getElementById('view-'+x).classList.toggle('hidden',x!==v));
   document.getElementById('navDash').classList.toggle('active',v==='dash');
+  document.getElementById('navSheet').classList.toggle('active',v==='sheet');
   document.getElementById('navData').classList.toggle('active',v==='data');
-  if(v==='dash') renderDash();
+  if(v==='dash'){ renderCards(); renderCharts(); }
+  if(v==='sheet') renderSheet();
 }
 
 /* ---------------- INIT ---------------- */
-document.getElementById('yearsub').textContent = YEAR+' performance · saved in this browser';
-load(); renderTables(); renderDash();
+document.getElementById('yearsub').textContent=YEAR+' performance · Dose of Hope + Dose Moving · saved in this browser';
+load(); renderAll();
 </script>
 </body>
 </html>
