@@ -88,24 +88,30 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
 /* ============ CONFIG — points at YOUR Google Sheet ============ */
-const SHEET_ID='1_eT7eFgbSBf4RYID4o8WGal_85gPAt-2s21EMyda0Nw';
+const SHEET_ID='1N1QwG8hzj0F4dfL2cy67fwEq6wUt6T0GR-9Li70uuPc';
 const ER_TARGET=4; // % (engagement of views; sheet has no reach column yet)
 /* number helper: strip commas/symbols */
 const N=v=>{ if(v==null)return null; const s=String(v).replace(/[^0-9.\-]/g,''); if(s===''||s==='-')return null; const n=parseFloat(s); return isNaN(n)?null:n; };
 const addCols=(r,idx)=>{ let s=0,any=false; idx.forEach(i=>{const v=N(r[i]); if(v!=null){s+=v;any=true;}}); return any?s:null; };
 
 /* Each feed = one tab in the sheet, with fixed column positions and a normalizer. */
+/* IG/FB cols: 0 Date, 1 Posts, 2 Views, 3 Followers, 4 Likes, 5 Comments, 6 Shares, 7 Repost
+   TikTok cols: 0 Date, 1 Uploads, 2 Followers, 3 Views, 4 Watchtime, 5 Likes
+   YouTube cols: 0 Date, 1 ShortUp, 2 ShortsViews, 3 LongUp, 4 VideoViews, 5 Subs, ... 9 Likes, 11 Comments, 12 Shares */
+const igfb = r=>({followers:N(r[3]),posts:N(r[1]),views:N(r[2]),eng:addCols(r,[4,5,6,7])});
+const ttn  = r=>({followers:N(r[2]),posts:N(r[1]),views:N(r[3]),eng:addCols(r,[5])});
+const ytn  = r=>({followers:N(r[5]),posts:addCols(r,[1,3]),views:addCols(r,[2,4]),eng:addCols(r,[9,11,12])});
 const FEEDS=[
-  {key:'ig_dom', account:'Dom', platform:'Instagram', tab:'IG Weekly - Dom', color:'#7F77DD',
-    norm:r=>({followers:N(r[3]),posts:N(r[1]),views:N(r[2]),eng:addCols(r,[4,5,6,7])})},
-  {key:'ig_lun', account:'Lunedi', platform:'Instagram', tab:'IG Weekly - Lunedi', color:'#B15FB0',
-    norm:r=>({followers:N(r[3]),posts:N(r[1]),views:N(r[2]),eng:addCols(r,[4,5,6,7])})},
-  {key:'tt_dom', account:'Dom', platform:'TikTok', tab:'TikTok Weekly - Dom', color:'#17A2B8',
-    norm:r=>({followers:N(r[2]),posts:N(r[1]),views:N(r[3]),eng:addCols(r,[5])})},
-  {key:'yt_dom', account:'Dom', platform:'YouTube', tab:'Youtube Weekly - Dom', color:'#E24B4A',
-    norm:r=>({followers:N(r[5]),posts:addCols(r,[1,3]),views:addCols(r,[2,4]),eng:addCols(r,[9,11,12])})},
-  {key:'li', account:'Lunedi', platform:'LinkedIn', tab:'Linkedin Weekly', color:'#0A66C2',
-    norm:r=>({followers:null,posts:N(r[1]),views:N(r[3]),eng:addCols(r,[4,5,6])})},
+  /* Dose Moving — tabs exist now (note: IG tab name has a leading space in the sheet) */
+  {key:'dm_ig', account:'Dose Moving', platform:'Instagram', tab:' IG Weekly - Dose Moving', color:'#7F77DD', norm:igfb},
+  {key:'dm_fb', account:'Dose Moving', platform:'Facebook',  tab:'FB Weekly - Dose Moving',  color:'#185FA5', norm:igfb},
+  {key:'dm_tt', account:'Dose Moving', platform:'TikTok',    tab:'TikTok Weekly - Dose Moving', color:'#17A2B8', norm:ttn},
+  {key:'dm_yt', account:'Dose Moving', platform:'YouTube',   tab:'Youtube Weekly - Dose Moving', color:'#E24B4A', norm:ytn},
+  /* Dose of Hope — create these tabs with these exact names and they light up automatically */
+  {key:'dh_ig', account:'Dose of Hope', platform:'Instagram', tab:'IG Weekly - Dose of Hope', color:'#7F77DD', norm:igfb},
+  {key:'dh_fb', account:'Dose of Hope', platform:'Facebook',  tab:'FB Weekly - Dose of Hope',  color:'#185FA5', norm:igfb},
+  {key:'dh_tt', account:'Dose of Hope', platform:'TikTok',    tab:'TikTok Weekly - Dose of Hope', color:'#17A2B8', norm:ttn},
+  {key:'dh_yt', account:'Dose of Hope', platform:'YouTube',   tab:'Youtube Weekly - Dose of Hope', color:'#E24B4A', norm:ytn},
 ];
 
 /* ============ CSV FETCH + PARSE ============ */
@@ -181,10 +187,12 @@ function renderCharts(){
   mk('cEr','line',weeks,[{data:er,borderColor:'#0F6E56',backgroundColor:'rgba(15,110,86,.12)',fill:true,tension:.3,pointRadius:3,spanGaps:true},
     {data:weeks.map(()=>ER_TARGET),borderColor:'#9aa3b2',borderDash:[5,4],pointRadius:0,fill:false}],true);
   mk('cPosts','bar',weeks,[{data:posts,backgroundColor:'#185FA5',borderRadius:4}]);
-  const plats=['Instagram','TikTok','YouTube','LinkedIn'];
-  mk('cPlat','bar',plats,[{data:plats.map(p=>grandSum('views',f=>f.platform===p)),backgroundColor:['#7F77DD','#17A2B8','#E24B4A','#0A66C2'],borderRadius:4}]);
-  const accts=['Dom','Lunedi'];
-  mk('cAcct','bar',accts,[{data:accts.map(a=>grandSum('views',f=>f.account===a)),backgroundColor:['#534AB7','#B15FB0'],borderRadius:4}]);
+  const platColor={Instagram:'#7F77DD',Facebook:'#185FA5',TikTok:'#17A2B8',YouTube:'#E24B4A',LinkedIn:'#0A66C2'};
+  const plats=[...new Set(FEEDS.map(f=>f.platform))];
+  mk('cPlat','bar',plats,[{data:plats.map(p=>grandSum('views',f=>f.platform===p)),backgroundColor:plats.map(p=>platColor[p]||'#888780'),borderRadius:4}]);
+  const acctPalette=['#534AB7','#1D9E75','#BA7517','#B15FB0'];
+  const accts=[...new Set(FEEDS.map(f=>f.account))];
+  mk('cAcct','bar',accts,[{data:accts.map(a=>grandSum('views',f=>f.account===a)),backgroundColor:accts.map((a,i)=>acctPalette[i%acctPalette.length]),borderRadius:4}]);
 }
 function renderDash(){
   renderCards();
