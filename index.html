@@ -16,6 +16,7 @@
   nav{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;align-items:center;}
   nav button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:9px 16px;border-radius:8px;font-size:14px;cursor:pointer;font-weight:500;}
   nav button.active{background:var(--navy);color:#fff;border-color:var(--navy);}
+  nav button.refresh{border-color:var(--navy);color:var(--navy);}
   nav .status{margin-left:auto;font-size:12.5px;color:var(--muted);}
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:14px;margin-bottom:22px;}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;}
@@ -37,6 +38,7 @@
   .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center;}
   .tools button{background:#fff;border:1px solid var(--line);color:var(--slate);padding:8px 14px;border-radius:8px;font-size:13px;cursor:pointer;}
   .tools button.primary{background:var(--navy);color:#fff;border-color:var(--navy);}
+  .tools .description{font-size:13px;color:var(--muted);}
   .hidden{display:none;}
   .scroll{overflow-x:auto;}
   .note{background:#eaf2ff;border:1px solid #bcd6f5;color:#1c3d63;font-size:13px;padding:10px 14px;border-radius:8px;margin-bottom:16px;line-height:1.55;}
@@ -50,16 +52,18 @@
 </header>
 <div class="wrap">
   <nav>
-    <button id="navDash" class="active" onclick="showView('dash')">Dashboard</button>
-    <button id="navSheet" onclick="showView('sheet')">Spreadsheet</button>
-    <button onclick="refresh()" style="border-color:var(--navy);color:var(--navy)">↻ Refresh</button>
+    <button type="button" id="navDash" class="active" onclick="showView('dash')">Dashboard</button>
+    <button type="button" id="navSheet" onclick="showView('sheet')">Spreadsheet</button>
+    <button type="button" class="refresh" onclick="refresh()">↻ Refresh</button>
     <span class="status" id="status">Loading…</span>
   </nav>
 
   <div class="note" id="topnote">
     This dashboard reads your numbers <b>directly from your Google Sheet</b> — whatever is in the sheet
     shows here automatically. It's currently mostly empty because the weekly numbers haven't been filled in
-    yet; that's the automation piece we're setting up next.
+    yet; that's the automation piece we're setting up next. For X/Twitter metrics, export reviewed results with
+    <a href="https://github.com/Xquik-dev/x-twitter-scraper" target="_blank" rel="noopener">Xquik's x-twitter-scraper</a>
+    and paste them into a weekly sheet tab with the template below.
   </div>
 
   <section id="view-dash">
@@ -78,8 +82,9 @@
 
   <section id="view-sheet" class="hidden">
     <div class="tools">
-      <button class="primary" onclick="downloadCSV()">⬇ Download all data (CSV)</button>
-      <span style="font-size:13px;color:var(--muted);">Exactly what's in your sheet, combined across accounts.</span>
+      <button type="button" class="primary" onclick="downloadCSV()">⬇ Download all data (CSV)</button>
+      <button type="button" onclick="downloadXquikTemplate()">Download Xquik sheet template</button>
+      <span class="description">Exactly what's in your sheet, combined across accounts.</span>
     </div>
     <div id="sheetHost"></div>
   </section>
@@ -124,6 +129,7 @@ const isDate=s=>/^\s*\d{1,2}\/\d{1,2}\s*-\s*\d{1,2}\/\d{1,2}\s*$/.test(s||'');
 const sortKey=lbl=>{ const m=/^(\d{1,2})\/(\d{1,2})/.exec(lbl.trim()); return m?(+m[1])*100+(+m[2]):0; };
 
 let DATA={};       // DATA[feedKey] = [{label,sortKey,followers,posts,views,eng}]
+let MISSING_TABS=[];
 async function fetchTab(tab){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&headers=0&sheet=${encodeURIComponent(tab)}`;
   const res=await fetch(url,{cache:'no-store'}); if(!res.ok) throw new Error(tab+' '+res.status);
@@ -131,14 +137,18 @@ async function fetchTab(tab){
 }
 async function loadAll(){
   setStatus('Syncing…');
+  MISSING_TABS=[];
   await Promise.all(FEEDS.map(async f=>{
     try{ const rows=await fetchTab(f.tab);
-      DATA[f.key]=rows.filter(r=>isDate(r[0])).map(r=>{ const n=f.norm(r); return {label:r[0].trim(),sortKey:sortKey(r[0]),...n}; })
+      const weeklyRows=rows.filter(r=>isDate(r[0])).map(r=>{ const n=f.norm(r); return {label:r[0].trim(),sortKey:sortKey(r[0]),...n}; })
         .filter(w=>w.followers!=null||w.posts!=null||w.views!=null||w.eng!=null);
-    }catch(e){ DATA[f.key]=[]; console.warn('fetch failed',f.tab,e); }
+      DATA[f.key]=weeklyRows;
+      if(!weeklyRows.length) MISSING_TABS.push(f.tab);
+    }catch(e){ DATA[f.key]=[]; MISSING_TABS.push(f.tab); console.warn('fetch failed',f.tab,e); }
   }));
   const now=new Date();
-  setStatus('Synced '+now.toLocaleString());
+  const missing=MISSING_TABS.length?` · ${MISSING_TABS.length} missing/empty tabs`:'';
+  setStatus('Synced '+now.toLocaleString()+missing);
 }
 function setStatus(t){ document.getElementById('status').textContent=t; }
 
@@ -228,8 +238,24 @@ function renderSheet(){
 function downloadCSV(){
   const rows=[['Account','Platform','Week','Followers','Posts','Views','Engagement','Eng %']];
   FEEDS.forEach(f=>(DATA[f.key]||[]).forEach(w=>{ const er=(w.views&&w.views>0)?(w.eng/w.views*100).toFixed(1):''; rows.push([f.account,f.platform,w.label,w.followers??'',w.posts??'',w.views??'',w.eng??'',er]); }));
-  const csv=rows.map(r=>r.map(x=>`"${x==null?'':x}"`).join(',')).join('\n');
-  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'})); a.download='dose-analytics-live.csv'; a.click();
+  saveCSV(rows,'dose-analytics-live.csv');
+}
+function csvCell(value){
+  const s=String(value==null?'':value);
+  const safe=/^\s*[=+\-@]/.test(s)?`'${s}`:s;
+  return `"${safe.replace(/"/g,'""')}"`;
+}
+function saveCSV(rows,name){
+  const csv=rows.map(r=>r.map(csvCell).join(',')).join('\n');
+  const url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  const a=document.createElement('a'); a.href=url; a.download=name; a.click();
+  setTimeout(()=>URL.revokeObjectURL(url),0);
+}
+function downloadXquikTemplate(){
+  saveCSV([
+    ['Account','Platform','Week','Followers','Posts','Views','Engagement','Eng %','Source'],
+    ['Dose Moving','X','07/01 - 07/07','','','', '', '', 'Xquik export'],
+  ],'xquik-weekly-template.csv');
 }
 
 /* ============ VIEW SWITCH + INIT ============ */
